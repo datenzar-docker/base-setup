@@ -12,7 +12,7 @@ services:
     # entrypoint: /initial_start.sh
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
     environment:
-      - CERTBOT_DOMAIN=dotr.umschd.de
+      - CERTBOT_DOMAIN=${ROOT_URL}
       - CERTBOT_EMAIL=letsencrypt@outgoer.de
     image: certbot/dns-cloudflare:latest
     networks:
@@ -32,7 +32,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     labels:
-      - "traefik.http.routers.portainer.rule=Host(`portainer123.dotr.umschd.de`)"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${ROOT_URL}`)"
       - "traefik.http.routers.portainer.tls=true"
 
   traefik:
@@ -58,6 +58,7 @@ services:
       - "443:443"
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
+    restart: always
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
@@ -68,7 +69,7 @@ services:
     # A container that exposes an API to show its IP address
     image: containous/whoami
     labels:
-      - "traefik.http.routers.whoami.rule=Host(`whoami.dotr.umschd.de`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${ROOT_URL}`)"
       - "traefik.http.routers.whoami.tls=true"
 
 volumes:
