@@ -16,9 +16,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-    labels:
-      - "traefik.http.routers.portainer.rule=Host(`portainer.${ROOT_URL}`)"
-      - "traefik.http.routers.portainer.tls=true"
 
   traefik:
     image: traefik:v2.2
@@ -32,6 +29,7 @@ services:
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
+      - ROOT_URL=${ROOT_URL}
       - TZ=${TZ}
     env_file:
       - ./credentials.env
@@ -41,17 +39,10 @@ services:
       - ./data/traefik.yml:/traefik.yml:ro
       - ./data/acme.json:/acme.json
     labels:
-      # redirect all http requests to https
-      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=http"
-      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       # define auth middleware
       - "traefik.http.middlewares.traefik-auth.basicauth.users=sneaker15:$$2y$$10$$Tv8w.gNaK494ENTLHgO/MefJa/XPldNYEWbSoQo77mcvUkM5RRHeu"
       # define https endpoint
       - "traefik.http.routers.traefik.middlewares=traefik-auth"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${ROOT_URL}`)"
-      - "traefik.http.routers.traefik.tls=true"
       # define resolver configuration
       - "traefik.http.routers.traefik.tls.certresolver=cloudflare"
       - "traefik.http.routers.traefik.tls.domains[0].main=${ROOT_URL}"
@@ -61,13 +52,11 @@ services:
   whoami:
     # A container that exposes an API to show its IP address
     image: containous/whoami
+    container_name: whoami
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
-    labels:
-      - "traefik.http.routers.whoami.rule=Host(`whoami.${ROOT_URL}`)"
-      - "traefik.http.routers.whoami.tls=true"
 
 volumes:
   portainer_data:

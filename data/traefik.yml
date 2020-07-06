@@ -5,23 +5,34 @@ api:
 entryPoints:
   http:
     address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
   https:
     address: ":443"
+    http:
+      tls: {}
 
 # uncomment for DEBUG message output
-log:
-  level: DEBUG
+# log:
+#   level: DEBUG
 
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: true
+    # defaultRule: 'Host(`{{ normalize .Name }}`)'
+    # defaultRule: 'Host(`{{ normalize .Name }}.{{env "ROOT_URL"}}`)'
+    defaultRule: 'Host(`{{ index .Labels "com.docker.compose.service"}}.{{env "ROOT_URL"}}`)'
+    # defaultRule: "Host(`example.com`) && PathPrefix(`/{{ ( .Name | trimPrefix (normalize (index .Labels "com.docker.stack.namespace") ) | trimPrefix "-" )  }}`)"
 
 certificatesResolvers:
   cloudflare:
     acme:
       # uncomment to test against letsencrypt staging
-      caserver: https://acme-staging-v02.api.letsencrypt.org/directory
+      # caserver: https://acme-staging-v02.api.letsencrypt.org/directory
       email: traefik@outgoer.de
       storage: acme.json
       dnsChallenge:
