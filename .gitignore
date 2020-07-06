@@ -1,2 +1,2 @@
-letsencrypt/
-credentials.txt
+data/acme.json
+credentials.env

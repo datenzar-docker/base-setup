@@ -4,12 +4,12 @@ networks:
   default:
     external:
       name: traefik
-  internal:
 
 services:
   whoami:
     # A container that exposes an API to show its IP address
     image: containous/whoami
     labels:
-      - "traefik.http.routers.whoami.rule=Host(`whoami.dotr.umschd.de`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${ROOT_URL}`)"
       - "traefik.http.routers.whoami.tls=true"
+      # - "traefik.http.routers.whoami.middlewares=traefik-auth"

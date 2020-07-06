@@ -7,24 +7,6 @@ networks:
   internal:
 
 services:
-  certbot:
-    # run this endpoint initially (TODO: integrate with a check into above query)
-    # entrypoint: /initial_start.sh
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    environment:
-      - CERTBOT_DOMAIN=${ROOT_URL}
-      - CERTBOT_EMAIL=letsencrypt@outgoer.de
-    image: certbot/dns-cloudflare:latest
-    networks:
-      - internal
-    restart: unless-stopped
-    volumes:
-      - ./credentials.txt:/credentials.txt
-      - ./initial_start.sh:/initial_start.sh
-      - ./letsencrypt/etc:/etc/letsencrypt
-      - ./letsencrypt/var:/var/lib/letsencrypt
-      - ./letsencrypt/log:/var/log/letsencrypt
-
   portainer:
     image: portainer/portainer
     restart: always
@@ -36,34 +18,41 @@ services:
       - "traefik.http.routers.portainer.tls=true"
 
   traefik:
-    command:
-      - --api.insecure=true
-      - --api.dashboard=true
-      - --entrypoints.web.address=:80
-      - --entrypoints.websecure.address=:443
-      - --providers.docker=true
-      - --providers.docker.network=traefik
-      - --providers.file.filename=/etc/traefik/dyn-traefik.yml
-    # The official v2.0 Traefik docker image
-    image: traefik:v2.0
+    image: traefik:v2.2
+    container_name: traefik
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - 80:80
+      - 443:443
+    env_file:
+      - ./credentials.env
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/traefik.yml:/traefik.yml:ro
+      - ./data/acme.json:/acme.json
     labels:
+      # redirect all http requests to https
       - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
-      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.entrypoints=http"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-    ports:
-      # The HTTP port
-      - "80:80"
-      # The HTTPS port
-      - "443:443"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
-    restart: always
-    volumes:
-      # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./dyn-traefik.yml:/etc/traefik/dyn-traefik.yml
-      - ./letsencrypt/etc:/certs
+      # define auth middleware
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=sneaker15:$$2y$$10$$Tv8w.gNaK494ENTLHgO/MefJa/XPldNYEWbSoQo77mcvUkM5RRHeu"
+      # define https endpoint
+      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${ROOT_URL}`)"
+      - "traefik.http.routers.traefik.tls=true"
+      # define resolver configuration
+      - "traefik.http.routers.traefik.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik.tls.domains[0].main=${ROOT_URL}"
+      - "traefik.http.routers.traefik.tls.domains[0].sans=*.${ROOT_URL}"
+      - "traefik.http.routers.traefik.service=api@internal"
 
   whoami:
     # A container that exposes an API to show its IP address

@@ -1,8 +1,0 @@
-# Dynamic configuration
-
-tls:
-  certificates:
-    - certFile: /certs/live/dotr.umschd.de/fullchain.pem
-      keyFile: /certs/live/dotr.umschd.de/privkey.pem
-      stores:
-        - default
