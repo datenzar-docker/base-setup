@@ -9,6 +9,10 @@ networks:
 services:
   portainer:
     image: portainer/portainer
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -26,11 +30,12 @@ services:
     ports:
       - 80:80
       - 443:443
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     env_file:
       - ./credentials.env
-    environment:
-      - CF_API_EMAIL=${CF_API_EMAIL}
-      - CF_API_KEY=${CF_API_KEY}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -57,6 +62,10 @@ services:
   whoami:
     # A container that exposes an API to show its IP address
     image: containous/whoami
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
     labels:
       - "traefik.http.routers.whoami.rule=Host(`whoami.${ROOT_URL}`)"
       - "traefik.http.routers.whoami.tls=true"

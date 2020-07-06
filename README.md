@@ -10,7 +10,13 @@ Project for a base setup of docker based services to run a server, incl.
 
 - create external network via `docker network create traefik`
 - replace CloudFlare account details in `credentials.env`
-- adjust domain name vie env variable `$ROOT_URL`
+- adjust following env variable to your needs:
+  -  `$ROOT_URL` need to point to the root url, e.g. `example.com`
+  -  `$PUID` will map the container to a user ID of your choice (you can get your own UID with `echo $UID`)
+  -  `$PGID` will map the container to a group ID of your choice (You can get your user group with 
+        ``` sh
+        getent group `whoami`
+        ```
 <!-- - get first certificate with `ROOT_URL=domedia.umschd.de docker-compose run --entrypoint=/initial_start.sh certbot` -->
 - execute `ROOT_URL=domedia.umschd.de docker-compose up -d`
 - done!!
