@@ -19,6 +19,15 @@ Project for a base setup of docker based services to run a server, incl.
 - execute `ROOT_URL=domedia.umschd.de docker-compose up -d`
 - done!!
 
+## Forward Authentication
+
+In order to enable forward authentication, first configure `oidc.env` with respective client information.
+
+For each client to be protected, add the following label (replacing `${SERVICE_NAME}` with the name of the service):
+`traefik.http.routers.${SERVICE_NAME}.middlewares=traefik-forward-auth`
+
+NOTE: The OIDC client will need to have `https://auth.${ROOT_URL}/_oauth` configured as a valid redirect URL.
+
 ## Troubleshooting
 
 ### Log ACME DNS challenge
