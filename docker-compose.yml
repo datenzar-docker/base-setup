@@ -54,6 +54,7 @@ services:
 
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
+    command: ["./traefik-forward-auth", "--config=/config.ini"]
     environment:
       - DEFAULT_PROVIDER=oidc
       - COOKIE_DOMAIN=${ROOT_URL}
@@ -68,6 +69,8 @@ services:
       - traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User
       - traefik.http.routers.traefik-forward-auth.middlewares=traefik-forward-auth # required to avoid endles login loop
       - traefik.http.services.traefik-forward-auth.loadbalancer.server.port=4181
+    volumes:
+      - ./config.ini:/config.ini
 
   whoami:
     # A container that exposes an API to show its IP address
