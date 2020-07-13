@@ -10,6 +10,7 @@ Project for a base setup of docker based services to run a server, incl.
 
 - create external network via `docker network create traefik`
 - create traefik certification placeholder with `touch data/acme.json`
+- adjust access to that file with `chmod 600 data/acme.json`
 
 - copy `credentials.env.sample` to `credentials.env` and enter CloudFlare account details
 - copy `oidc.env.sample` to `oidc.env` and enter OIDC configuration details
