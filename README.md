@@ -18,7 +18,9 @@ Project for a base setup of docker based services to run a server, incl.
   - `$ROOT_URL` need to point to the root url, e.g. `example.com`
   - `$PUID` will map the container to a user ID of your choice (you can get your own UID with `echo $UID`)
   - `$PGID` will map the container to a group ID of your choice (You can get your user group with
-  `` sh getent group `whoami` ``
+  - `TRUSTED_PROXIES` is the proxy of traefik network `docker network inspect traefik --format='{{(index .IPAM.Config 0).Gateway}}'`
+  - `$TZ` should be according to your timezone, e.g. `Europe/Berlin`
+    `` sh getent group `whoami` ``
 - execute `docker-compose up -d`
 - done!!
 
