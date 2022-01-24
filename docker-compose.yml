@@ -7,11 +7,21 @@ networks:
 
 services:
   portainer:
-    image: portainer/portainer
+    image: portainer/portainer-ce:2.11.0
     environment:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    labels:
+      # Frontend
+      - "traefik.http.routers.frontend.rule=Host(`portainer.${ROOT_URL}`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
+      - "traefik.http.routers.frontend.service=frontend"
+
+      # Edge
+      - "traefik.http.routers.edge.rule=Host(`edge.${ROOT_URL}`)"
+      - "traefik.http.services.edge.loadbalancer.server.port=8000"
+      - "traefik.http.routers.edge.service=edge"
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -39,11 +49,8 @@ services:
       - ./data/traefik.yml:/traefik.yml:ro
       - ./data/acme.json:/acme.json
     labels:
-      # Auth middleware forwarding to OIDC endpoint
-      # - "traefik.http.routers.traefik.middlewares=traefik-forward-auth"
-
-      # Basic Auth see https://linux.die.net/man/1/htpasswd for how to generate password
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=sneaker15:$$2y$$10$$Tv8w.gNaK494ENTLHgO/MefJa/XPldNYEWbSoQo77mcvUkM5RRHeu"
+      # configuration for traefik authentication
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=$TRAEFIK_AUTH"
       - "traefik.http.routers.traefik.middlewares=traefik-auth"
 
       # define resolver configuration
@@ -51,37 +58,6 @@ services:
       - traefik.http.routers.traefik.tls.domains[0].main=${ROOT_URL}
       - traefik.http.routers.traefik.tls.domains[0].sans=*.${ROOT_URL}
       - traefik.http.routers.traefik.service=api@internal
-
-  # traefik-forward-auth:
-  #   image: thomseddon/traefik-forward-auth:latest
-  #   command: ["./traefik-forward-auth", "--config=/config.ini"]
-  #   environment:
-  #     - DEFAULT_PROVIDER=oidc
-  #     - COOKIE_DOMAIN=${ROOT_URL}
-  #     - AUTH_HOST=auth.${ROOT_URL}
-  #     # Increase the log level to see e.g. ACME certificate request entries
-  #     # - LOG_LEVEL=debug
-  #   env_file:
-  #     - ./oidc.env
-  #   labels:
-  #     - traefik.http.routers.traefik-forward-auth.rule=Host(`auth.${ROOT_URL}`)
-  #     - traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://traefik-forward-auth:4181
-  #     - traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User
-  #     - traefik.http.routers.traefik-forward-auth.middlewares=traefik-forward-auth # required to avoid endles login loop
-  #     - traefik.http.services.traefik-forward-auth.loadbalancer.server.port=4181
-  #   volumes:
-  #     - ./config.ini:/config.ini
-
-  whoami:
-    # A container that exposes an API to show its IP address
-    image: containous/whoami
-    container_name: whoami
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    labels:
-      - traefik.http.routers.whoami.middlewares=traefik-auth
 
 volumes:
   portainer_data:

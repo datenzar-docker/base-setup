@@ -26,14 +26,13 @@ providers:
     # defaultRule: 'Host(`{{ normalize .Name }}`)'
     # defaultRule: 'Host(`{{ normalize .Name }}.{{env "ROOT_URL"}}`)'
     defaultRule: 'Host(`{{ index .Labels "com.docker.compose.service"}}.{{env "ROOT_URL"}}`)'
-    # defaultRule: "Host(`example.com`) && PathPrefix(`/{{ ( .Name | trimPrefix (normalize (index .Labels "com.docker.stack.namespace") ) | trimPrefix "-" )  }}`)"
 
 certificatesResolvers:
   cloudflare:
     acme:
       # uncomment to test against letsencrypt staging
       # caserver: https://acme-staging-v02.api.letsencrypt.org/directory
-      email: traefik@outgoer.de
+      email: changeme@example.org
       storage: acme.json
       dnsChallenge:
         provider: cloudflare
