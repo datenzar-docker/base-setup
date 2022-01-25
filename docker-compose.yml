@@ -49,15 +49,38 @@ services:
       - ./data/traefik.yml:/traefik.yml:ro
       - ./data/acme.json:/acme.json
     labels:
-      # configuration for traefik authentication
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=$TRAEFIK_AUTH"
-      - "traefik.http.routers.traefik.middlewares=traefik-auth"
+      # Auth middleware forwarding to OIDC endpoint
+      - "traefik.http.routers.traefik.middlewares=traefik-forward-auth"
+
+      # # configuration for traefik authentication
+      # - "traefik.http.middlewares.traefik-auth.basicauth.users=$TRAEFIK_AUTH"
+      # - "traefik.http.routers.traefik.middlewares=traefik-auth"
 
       # define resolver configuration
       - traefik.http.routers.traefik.tls.certresolver=cloudflare
       - traefik.http.routers.traefik.tls.domains[0].main=${ROOT_URL}
       - traefik.http.routers.traefik.tls.domains[0].sans=*.${ROOT_URL}
       - traefik.http.routers.traefik.service=api@internal
+
+  traefik-forward-auth:
+    image: thomseddon/traefik-forward-auth:latest
+    command: ["./traefik-forward-auth", "--config=/config.ini"]
+    environment:
+      - DEFAULT_PROVIDER=oidc
+      - COOKIE_DOMAIN=${ROOT_URL}
+      - AUTH_HOST=auth.${ROOT_URL}
+      # Increase the log level to see e.g. ACME certificate request entries
+      # - LOG_LEVEL=debug
+    env_file:
+      - ./oidc.env
+    labels:
+      - traefik.http.routers.traefik-forward-auth.rule=Host(`auth.${ROOT_URL}`)
+      - traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://traefik-forward-auth:4181
+      - traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User
+      - traefik.http.routers.traefik-forward-auth.middlewares=traefik-forward-auth # required to avoid endles login loop
+      - traefik.http.services.traefik-forward-auth.loadbalancer.server.port=4181
+    volumes:
+      - ./config.ini:/config.ini
 
 volumes:
   portainer_data:
