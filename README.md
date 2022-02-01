@@ -44,7 +44,7 @@ services:
 - copy `credentials.env.sample` to `credentials.env` and enter CloudFlare account details
 - adjust email (changeme@example.org) in `data/traefik.yml` and provide your own email address
 - adjust following env variable to your needs:
-  - `$TRAEFIK_AUTH` need to be filled with basic auth from `htpasswd -n <username>` (see https://linux.die.net/man/1/htpasswd for details)
+  - `$TRAEFIK_AUTH` need to be filled with basic auth from `htpasswd -n <username>` (see https://linux.die.net/man/1/htpasswd for details). *NOTE: within the yml-config file itself you need to make sure to escape the dollar signs with double dollars ($$), whereas setting the variable in rc, you better put it in single quotes*
   - `$ROOT_URL` need to point to the root url, e.g. `example.com`
   - `$PUID` will map the container to a user ID of your choice (you can get your own UID with `echo $UID`)
   - `$PGID` will map the container to a group ID of your choice (You can get your user group with `getent group $(whoami)`
