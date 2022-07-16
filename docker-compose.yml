@@ -36,6 +36,8 @@ services:
     security_opt:
       - no-new-privileges:true
     ports:
+      - 53:53
+      - 69:69/udp
       - 80:80
       - 443:443
     environment:
@@ -68,6 +70,13 @@ services:
     #   - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
     #   - "traefik.http.routers.whoami.entrypoints=web"
     #   - traefik.http.routers.whoami.middlewares=whoami
+
+  # whoamiudp:
+  #   image: "traefik/whoamiudp"
+  #   labels:
+  #     - traefik.udp.routers.whoamiudp.entrypoints=tftp
+  #     - traefik.udp.routers.whoamiudp.service=whoamiudp
+  #     - traefik.udp.services.whoamiudp.loadbalancer.server.port=8080
 
 volumes:
   portainer_data:
