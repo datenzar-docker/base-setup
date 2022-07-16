@@ -37,7 +37,7 @@ services:
       - no-new-privileges:true
     ports:
       - 53:53
-      - 69:69/udp
+      # - 69:69/udp # deactivated, as tftp seems not to work on bridge (behind traefik) https://github.com/linuxserver/docker-netbootxyz/issues/11
       - 80:80
       - 443:443
     environment:
