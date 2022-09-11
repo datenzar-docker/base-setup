@@ -13,6 +13,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     labels:
+      - traefik.enable=true
       # Frontend
       - "traefik.http.routers.frontend.rule=Host(`portainer.${ROOT_URL}`)"
       - "traefik.http.services.frontend.loadbalancer.server.port=9000"
@@ -53,6 +54,7 @@ services:
       - ./data/traefik.yml:/traefik.yml:ro
       - ./data/acme.json:/acme.json
     labels:
+      - traefik.enable=true
       # configuration for traefik authentication
       - "traefik.http.middlewares.traefik-auth.basicauth.users=$TRAEFIK_AUTH"
       - "traefik.http.routers.traefik.middlewares=traefik-auth"
@@ -65,8 +67,8 @@ services:
 
   whoami:
     image: "traefik/whoami"
-    # labels:
-    #   - "traefik.enable=true"
+    labels:
+      traefik.enable: true
     #   - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
     #   - "traefik.http.routers.whoami.entrypoints=web"
     #   - traefik.http.routers.whoami.middlewares=whoami

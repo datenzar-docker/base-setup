@@ -28,7 +28,8 @@ entryPoints:
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
-    exposedByDefault: true
+    exposedByDefault: false
+    network: traefik
     # defaultRule: 'Host(`{{ normalize .Name }}`)'
     # defaultRule: 'Host(`{{ normalize .Name }}.{{env "ROOT_URL"}}`)'
     defaultRule: 'Host(`{{ index .Labels "com.docker.compose.service"}}.{{env "ROOT_URL"}}`)'
