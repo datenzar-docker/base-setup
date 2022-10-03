@@ -65,6 +65,17 @@ services:
       - traefik.http.routers.traefik.tls.domains[0].sans=*.${ROOT_URL}
       - traefik.http.routers.traefik.service=api@internal
 
+  ## Watchtower upgrades services automatically
+  watchtower:
+    restart: unless-stopped
+    image: containrrr/watchtower
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: 7200 # checks for updates every two hours
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      # - "~/.docker/config.json:/config.json" # optional, for authentication if you have a Docker Hub account
+
   whoami:
     image: "traefik/whoami"
     labels:
