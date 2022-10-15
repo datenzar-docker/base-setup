@@ -9,20 +9,20 @@ services:
   portainer:
     image: portainer/portainer-ce:latest
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
     labels:
-      - traefik.enable=true
+      traefik.enable: true
       # Frontend
-      - "traefik.http.routers.frontend.rule=Host(`portainer.${ROOT_URL}`)"
-      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
-      - "traefik.http.routers.frontend.service=frontend"
+      traefik.http.routers.frontend.rule: Host(`portainer.${ROOT_URL}`)
+      traefik.http.services.frontend.loadbalancer.server.port: 9000
+      traefik.http.routers.frontend.service: frontend
 
       # Edge
-      - "traefik.http.routers.edge.rule=Host(`edge.${ROOT_URL}`)"
-      - "traefik.http.services.edge.loadbalancer.server.port=8000"
-      - "traefik.http.routers.edge.service=edge"
+      traefik.http.routers.edge.rule: Host(`edge.${ROOT_URL}`)
+      traefik.http.services.edge.loadbalancer.server.port: 8000
+      traefik.http.routers.edge.service: edge
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -33,45 +33,45 @@ services:
     command:
       - "--log.level=INFO"
     container_name: traefik
-    restart: always
-    security_opt:
-      - no-new-privileges:true
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      ROOT_URL: ${ROOT_URL}
+      TZ: ${TZ}
+    env_file:
+      - ./credentials.env
+    labels:
+      traefik.enable: true
+      # configuration for traefik authentication
+      traefik.http.middlewares.traefik-auth.basicauth.users: $TRAEFIK_AUTH
+      traefik.http.routers.traefik.middlewares: traefik-auth
+
+      # define resolver configuration
+      traefik.http.routers.traefik.tls.certresolver: cloudflare
+      traefik.http.routers.traefik.tls.domains[0].main: ${ROOT_URL}
+      traefik.http.routers.traefik.tls.domains[0].sans: "*.${ROOT_URL}"
+      traefik.http.routers.traefik.service: api@internal
     ports:
       - 53:53
       # - 69:69/udp # deactivated, as tftp seems not to work on bridge (behind traefik) https://github.com/linuxserver/docker-netbootxyz/issues/11
       - 80:80
       - 443:443
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - ROOT_URL=${ROOT_URL}
-      - TZ=${TZ}
-    env_file:
-      - ./credentials.env
+    restart: always
+    security_opt:
+      - no-new-privileges:true
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./data/traefik.yml:/traefik.yml:ro
       - ./data/acme.json:/acme.json
-    labels:
-      - traefik.enable=true
-      # configuration for traefik authentication
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=$TRAEFIK_AUTH"
-      - "traefik.http.routers.traefik.middlewares=traefik-auth"
-
-      # define resolver configuration
-      - traefik.http.routers.traefik.tls.certresolver=cloudflare
-      - traefik.http.routers.traefik.tls.domains[0].main=${ROOT_URL}
-      - traefik.http.routers.traefik.tls.domains[0].sans=*.${ROOT_URL}
-      - traefik.http.routers.traefik.service=api@internal
 
   ## Watchtower upgrades services automatically
   watchtower:
-    restart: unless-stopped
     image: containrrr/watchtower
     environment:
       WATCHTOWER_CLEANUP: "true"
       WATCHTOWER_POLL_INTERVAL: 7200 # checks for updates every two hours
+    restart: unless-stopped
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "~/.docker/config.json:/config.json" # optional, for authentication if you have a Docker Hub account
@@ -80,16 +80,16 @@ services:
     image: "traefik/whoami"
     labels:
       traefik.enable: true
-    #   - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
-    #   - "traefik.http.routers.whoami.entrypoints=web"
-    #   - traefik.http.routers.whoami.middlewares=whoami
+      # traefik.http.routers.whoami.rule: Host(`whoami.localhost`)
+      # traefik.http.routers.whoami.entrypoints: web
+      # traefik.http.routers.whoami.middlewares: whoami
 
   # whoamiudp:
   #   image: "traefik/whoamiudp"
   #   labels:
-  #     - traefik.udp.routers.whoamiudp.entrypoints=tftp
-  #     - traefik.udp.routers.whoamiudp.service=whoamiudp
-  #     - traefik.udp.services.whoamiudp.loadbalancer.server.port=8080
+  #     traefik.udp.routers.whoamiudp.entrypoints: tftp
+  #     traefik.udp.routers.whoamiudp.service: whoamiudp
+  #     traefik.udp.services.whoamiudp.loadbalancer.server.port: 8080
 
 volumes:
   portainer_data:
