@@ -9,13 +9,9 @@ services:
   monitoring:
     image: netdata/netdata
     cap_add:
-      - SYS_PTRACE
-    # required to permit SYS_PTRACE https://github.com/moby/moby/issues/7276
-    security_opt:
-      - apparmor:unconfined
+      # - SYS_PTRACE
+      - SYS_ADMIN # required for docker network interfaces monitoring https://learn.netdata.cloud/docs/agent/packaging/docker#docker-container-network-interfaces-monitoring
     environment:
-      PUID: ${PUID}
-      PGID: ${PGID}
       TZ: ${TZ}
     hostname: monitoring.${ROOT_URL} # set to fqdn of host
     labels:
@@ -31,7 +27,11 @@ services:
       traefik.http.middlewares.netdata.headers.stsPreload: true
       traefik.http.middlewares.netdata.headers.stsSeconds: 315360000
       traefik.http.routers.netdata.middlewares: traefik-auth,netdata
+    pid: host # required for docker network interfaces monitoring https://learn.netdata.cloud/docs/agent/packaging/docker#docker-container-network-interfaces-monitoring
     restart: unless-stopped
+    # required to permit SYS_PTRACE https://github.com/moby/moby/issues/7276
+    security_opt:
+      - apparmor:unconfined
     volumes:
       - netdata_cache:/var/cache/netdata
       - netdata_config:/etc/netdata
