@@ -33,7 +33,6 @@ services:
     image: traefik:v2.8
     command:
       - "--log.level=INFO"
-    container_name: traefik
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
