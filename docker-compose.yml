@@ -13,6 +13,7 @@ services:
       PGID: ${PGID}
       TZ: ${TZ}
     labels:
+      com.centurylinklabs.watchtower.enable: true
       traefik.enable: true
       # Frontend
       traefik.http.routers.frontend.rule: Host(`portainer.${ROOT_URL}`)
@@ -41,6 +42,7 @@ services:
     env_file:
       - ./credentials.env
     labels:
+      com.centurylinklabs.watchtower.enable: true
       traefik.enable: true
       # configuration for traefik authentication
       traefik.http.middlewares.traefik-auth.basicauth.users: $TRAEFIK_AUTH
@@ -68,8 +70,14 @@ services:
   ## Watchtower upgrades services automatically
   watchtower:
     image: containrrr/watchtower
+    # For testing purposes, set the interval to 30 seconds
+    command: --interval 30
     environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
       WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_LABEL_ENABLE: "true" # Update containers that have a com.centurylinklabs.watchtower.enable label set to true.
       WATCHTOWER_POLL_INTERVAL: 7200 # checks for updates every two hours
     restart: unless-stopped
     volumes:
