@@ -54,13 +54,13 @@ services:
       traefik.enable: true
       # Frontend
       traefik.http.routers.frontend.rule: Host(`portainer.${ROOT_URL}`)
-      traefik.http.services.frontend.loadbalancer.server.port: 9000
       traefik.http.routers.frontend.service: frontend
+      traefik.http.services.frontend.loadbalancer.server.port: 9000
 
       # Edge
       traefik.http.routers.edge.rule: Host(`edge.${ROOT_URL}`)
-      traefik.http.services.edge.loadbalancer.server.port: 8000
       traefik.http.routers.edge.service: edge
+      traefik.http.services.edge.loadbalancer.server.port: 8000
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

@@ -46,7 +46,7 @@ services:
   - `$TRAEFIK_AUTH` need to be filled with basic auth from `htpasswd -n <username>` (see https://linux.die.net/man/1/htpasswd for details). _NOTE: within the yml-config file itself you need to make sure to escape the dollar signs with double dollars ($$), whereas setting the variable in rc, you better put it in single quotes_
   - `$ROOT_URL` need to point to the root url, e.g. `example.com`
   - `$PUID` will map the container to a user ID of your choice (you can get your own UID with `echo $UID`)
-  - `$PGID` will map the container to a group ID of your choice (You can get your user group with `getent group $(whoami)`
+  - `$PGID` will map the container to a group ID of your choice (you can get your own UID with `echo $GID`)
   - `$TRUSTED_PROXIES` is the proxy of traefik network `docker network inspect traefik --format='{{(index .IPAM.Config 0).Gateway}}'`
   - `$TZ` should be according to your timezone, e.g. `Europe/Berlin`
 - execute `docker-compose up -d`
