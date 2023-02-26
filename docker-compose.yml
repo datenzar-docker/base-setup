@@ -77,6 +77,8 @@ services:
       TZ: ${TZ}
     env_file:
       - ./credentials.env
+    extra_hosts:
+      - host.docker.internal:172.17.0.1 # Needed to avoid Bad Gateway error message when redirecting to host network (e.g. for homeassistant).
     labels:
       com.centurylinklabs.watchtower.enable: true
       traefik.enable: true
