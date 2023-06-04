@@ -109,7 +109,7 @@ services:
   watchtower:
     image: containrrr/watchtower
     # For testing purposes, set the interval to 30 seconds
-    command: --interval 30
+    # command: --interval 30
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
