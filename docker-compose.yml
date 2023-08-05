@@ -2,8 +2,8 @@ version: "3.6"
 
 networks:
   default:
-    external:
-      name: traefik
+    name: traefik
+    external: true
 
 services:
   monitoring:
@@ -66,6 +66,18 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer:/data
 
+  statping:
+    container_name: statping
+    image: adamboutcher/statping-ng:latest
+    environment:
+      DB_CONN: sqlite
+    labels:
+      com.centurylinklabs.watchtower.enable: true
+      traefik.enable: true
+    restart: always
+    volumes:
+      - statping_data:/app
+
   traefik:
     image: traefik:v2.8
     command:
@@ -92,7 +104,7 @@ services:
       traefik.http.routers.traefik.tls.domains[0].sans: "*.${ROOT_URL}"
       traefik.http.routers.traefik.service: api@internal
     ports:
-      - 53:53
+      # - 53:53
       # - 69:69/udp # deactivated, as tftp seems not to work on bridge (behind traefik) https://github.com/linuxserver/docker-netbootxyz/issues/11
       - 80:80
       - 443:443
@@ -142,3 +154,4 @@ volumes:
   netdata_config:
   netdata_lib:
   portainer_data:
+  statping_data:
