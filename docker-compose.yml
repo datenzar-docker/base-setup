@@ -104,7 +104,7 @@ services:
       traefik.http.routers.traefik.tls.domains[0].sans: "*.${ROOT_URL}"
       traefik.http.routers.traefik.service: api@internal
     ports:
-      # - 53:53
+      # - 53:53 # deactivated, as dns is conflicting with bind service
       # - 69:69/udp # deactivated, as tftp seems not to work on bridge (behind traefik) https://github.com/linuxserver/docker-netbootxyz/issues/11
       - 80:80
       - 443:443
