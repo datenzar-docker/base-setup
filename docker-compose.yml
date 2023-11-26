@@ -67,7 +67,6 @@ services:
       - ./portainer:/data
 
   statping:
-    container_name: statping
     image: adamboutcher/statping-ng:latest
     environment:
       DB_CONN: sqlite
@@ -82,6 +81,9 @@ services:
     image: traefik:v2.8
     command:
       - "--log.level=INFO"
+    depends_on:
+      init:
+        condition: service_completed_successfully
     environment:
       PUID: ${PUID}
       PGID: ${PGID}
@@ -148,6 +150,23 @@ services:
   #     traefik.udp.routers.whoamiudp.entrypoints: tftp
   #     traefik.udp.routers.whoamiudp.service: whoamiudp
   #     traefik.udp.services.whoamiudp.loadbalancer.server.port: 8080
+
+  ## Config dir needs to be writable by uid/gid 1000
+  ## This container sets the right permissions and exits
+  init:
+    image: busybox:latest
+    command: 
+      - /bin/sh
+      - -c
+      - |    
+        touch /traefik/acme.json
+        chmod 600 /traefik/acme.json
+        chown -R 1000:1000 /traefik
+    volumes:
+      - ./traefik:/traefik
+    labels:
+      org.prind.service: init
+
 
 volumes:
   netdata_cache:
