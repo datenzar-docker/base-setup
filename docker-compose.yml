@@ -167,6 +167,27 @@ services:
     labels:
       org.prind.service: init
 
+  certsync:
+    image: stedolan/jq
+    # Dumps both certificate and key for the given domain $ROOT_URL
+    entrypoint: |
+      /bin/bash -c "
+        jq -r '.cloudflare.Certificates[] | select(.domain.main==\"${ROOT_URL}\") | .certificate' /data/acme.json | base64 -d > /out/${ROOT_URL}_cert.pem;
+        jq -r '.cloudflare.Certificates[] | select(.domain.main==\"${ROOT_URL}\") | .key' /data/acme.json | base64 -d > /out/${ROOT_URL}_key.pem;
+      "
+    volumes:
+      - ./traefik/acme.json:/data/acme.json:ro
+      - tls_cert:/out # And whichever volume you want to output on
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.role==manager] # Only run on the manager node (Where traefik and its volume exists)
+      restart_policy:
+        delay: 24h # Re-run every 24 hours
+      resources:
+        limits: { cpus: '0.1', memory: '32M' }
+        reservations: { cpus: '0.025', memory: '16M' }
+
 
 volumes:
   netdata_cache:
@@ -174,3 +195,5 @@ volumes:
   netdata_lib:
   portainer_data:
   statping_data:
+  tls_cert:
+    external: true  
