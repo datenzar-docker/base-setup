@@ -140,9 +140,16 @@ services:
     image: "traefik/whoami"
     labels:
       traefik.enable: true
-      # traefik.http.routers.whoami.rule: Host(`whoami.localhost`)
-      # traefik.http.routers.whoami.entrypoints: web
-      # traefik.http.routers.whoami.middlewares: whoami
+
+      # Override traefik default settings (e.g. in case if it detects wrong port)
+      traefik.http.routers.whoami.rule: Host(`whoami.${ROOT_URL}`)
+      traefik.http.routers.whoami.service: whoami
+      traefik.http.services.whoami.loadbalancer.server.port: 80
+
+      # Expose service on root hostname with path prefix
+      traefik.http.routers.whoami-path.rule: Host(`${ROOT_URL}`) && PathPrefix(`/whoami`)
+      traefik.http.routers.whoami-path.entrypoints: https
+      traefik.http.routers.whoami-path.service: whoami
 
   # whoamiudp:
   #   image: "traefik/whoamiudp"
