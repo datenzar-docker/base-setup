@@ -3,23 +3,34 @@ api:
   debug: true
 
 entryPoints:
+# TODO: check if both can be merged into one
+  # dns:
+  #   address: ":53"
   dns-tcp:
     address: ":53/tcp"
   dns-udp:
     address: ":53/udp"
-  http:
+  mqtt:
+    address: ":1883/tcp"
+  mqtts:
+    address: ":8883/tcp"
+  tftp:
+    address: ":69/udp"
+  web:
     address: ":80"
     http:
       redirections:
         entryPoint:
-          to: https
+          to: websecure
           scheme: https
-  https:
+  websecure:
     address: ":443"
     http:
       tls: {}
-  tftp:
-    address: ":69/udp"
+  wss:
+    address: ":4433"
+    http:
+      tls: {}
 
 # uncomment for DEBUG message output
 # log:

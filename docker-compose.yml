@@ -136,21 +136,6 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "~/.docker/config.json:/config.json" # optional, for authentication if you have a Docker Hub account
 
-  whoami:
-    image: "traefik/whoami"
-    labels:
-      traefik.enable: true
-      # traefik.http.routers.whoami.rule: Host(`whoami.localhost`)
-      # traefik.http.routers.whoami.entrypoints: web
-      # traefik.http.routers.whoami.middlewares: whoami
-
-  # whoamiudp:
-  #   image: "traefik/whoamiudp"
-  #   labels:
-  #     traefik.udp.routers.whoamiudp.entrypoints: tftp
-  #     traefik.udp.routers.whoamiudp.service: whoamiudp
-  #     traefik.udp.services.whoamiudp.loadbalancer.server.port: 8080
-
   ## Config dir needs to be writable by uid/gid 1000
   ## This container sets the right permissions and exits
   init:

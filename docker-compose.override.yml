@@ -1,0 +1,32 @@
+services:
+  whoami:
+    image: "traefik/whoami"
+    labels:
+      traefik.enable: true
+      # traefik.http.routers.whoami.rule: Host(`whoami.localhost`)
+      # traefik.http.routers.whoami.entrypoints: web
+      # traefik.http.routers.whoami.middlewares: whoami
+    profiles:
+      - whoami
+      
+  # this demonstrates a service running via host networking
+  whoami_host:
+    image: "traefik/whoami"
+    command:
+       - --port=${WHOAMI_HOST_PORT:-2001}
+       - --name=iamfoo_on_host
+    labels:
+      traefik.enable: true
+      traefik.http.services.whoami_host.loadbalancer.server.port: ${WHOAMI_HOST_PORT:-2001}
+    network_mode: host
+    profiles:
+      - whoami
+
+  whoamitftp:
+    image: "traefik/whoamiudp"
+    labels:
+      traefik.udp.routers.whoamiudp.entrypoints: tftp
+      traefik.udp.routers.whoamiudp.service: whoamiudp
+      traefik.udp.services.whoamiudp.loadbalancer.server.port: 8080
+    profiles:
+      - whoami
