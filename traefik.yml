@@ -29,9 +29,7 @@ entryPoints:
       tls: {}
   wss:
     address: ":4433"
-    http:
-      tls: {}
-
+    
 # uncomment for DEBUG message output
 # log:
 #   level: DEBUG

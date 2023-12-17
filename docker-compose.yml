@@ -110,6 +110,7 @@ services:
       # - 69:69/udp # deactivated, as tftp seems not to work on bridge (behind traefik) https://github.com/linuxserver/docker-netbootxyz/issues/11
       - 80:80
       - 443:443
+      - 8883:8883 # MQTT over TLS
     restart: always
     security_opt:
       - no-new-privileges:true
