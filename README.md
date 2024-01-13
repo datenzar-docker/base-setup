@@ -37,6 +37,7 @@ services:
 ## Installation
 
 - create external network via `docker network create traefik`
+- create volume via `docker volume create tls_cert`
 - copy `credentials.env.sample` to `credentials.env` and enter CloudFlare account details
 - copy `.env.sample` to `.env` and adjust following env variable to your needs:
   - `$TRAEFIK_AUTH` need to be filled with basic auth from `htpasswd -n <username>` (see https://linux.die.net/man/1/htpasswd for details). _NOTE: within the yml-config file itself you need to make sure to escape the dollar signs with double dollars ($$), whereas setting the variable in rc, you better put it in single quotes_
