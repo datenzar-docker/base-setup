@@ -47,9 +47,18 @@ services:
   - `$TRUSTED_PROXIES` is the proxy of traefik network `docker network inspect traefik --format='{{(index .IPAM.Config 0).Gateway}}'`
   - `$TZ` should be according to your timezone, e.g. `Europe/Berlin`
 - adjust email (changeme@example.org) in `data/traefik.yml` and provide your own email address
-- execute `docker-compose up -d`
+- execute `docker compose up -d`
 - go to `https://portainer.${ROOT_DOMAIN}` and set your admin password for portainer
 - done!!
+
+### TL;DR
+
+```sh
+docker network create traefik
+docker volume create tls_cert
+cp credentials.env.sample credentials.env
+cp .env.sample .env
+```
 
 ## Troubleshooting
 
