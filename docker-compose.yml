@@ -141,10 +141,10 @@ services:
   ## This container sets the right permissions and exits
   init:
     image: busybox:latest
-    command: 
+    command:
       - /bin/sh
       - -c
-      - |    
+      - |
         touch /traefik/acme.json
         chmod 600 /traefik/acme.json
         chown -R 1000:1000 /traefik
