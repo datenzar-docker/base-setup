@@ -114,6 +114,7 @@ services:
       # - 69:69/udp # deactivated, as tftp seems not to work on bridge (behind traefik) https://github.com/linuxserver/docker-netbootxyz/issues/11
       - 80:80
       - 443:443
+      - 8883:8883 # MQTT over TLS
     restart: always
     security_opt:
       - no-new-privileges:true
@@ -140,36 +141,14 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "${HOME}/.docker/config.json:/config.json" # optional, for authentication if you have a Docker Hub account
 
-  whoami:
-    image: "traefik/whoami"
-    labels:
-      traefik.enable: true
-
-      # Override traefik default settings (e.g. in case if it detects wrong port)
-      traefik.http.routers.whoami.rule: Host(`whoami.${ROOT_URL}`)
-      traefik.http.routers.whoami.service: whoami
-      traefik.http.services.whoami.loadbalancer.server.port: 80
-
-      # Expose service on root hostname with path prefix
-      traefik.http.routers.whoami-path.rule: Host(`${ROOT_URL}`) && PathPrefix(`/whoami`)
-      traefik.http.routers.whoami-path.entrypoints: https
-      traefik.http.routers.whoami-path.service: whoami
-
-  # whoamiudp:
-  #   image: "traefik/whoamiudp"
-  #   labels:
-  #     traefik.udp.routers.whoamiudp.entrypoints: tftp
-  #     traefik.udp.routers.whoamiudp.service: whoamiudp
-  #     traefik.udp.services.whoamiudp.loadbalancer.server.port: 8080
-
   ## Config dir needs to be writable by uid/gid 1000
   ## This container sets the right permissions and exits
   init:
     image: busybox:latest
-    command: 
+    command:
       - /bin/sh
       - -c
-      - |    
+      - |
         touch /traefik/acme.json
         chmod 600 /traefik/acme.json
         chown -R 1000:1000 /traefik
