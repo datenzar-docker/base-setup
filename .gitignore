@@ -1,3 +1,4 @@
 portainer/
 traefik/
 *.env
+!example.env

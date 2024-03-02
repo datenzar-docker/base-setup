@@ -6,45 +6,6 @@ networks:
     external: true
 
 services:
-  monitoring:
-    image: netdata/netdata
-    cap_add:
-      # - SYS_PTRACE
-      - SYS_ADMIN # required for docker network interfaces monitoring https://learn.netdata.cloud/docs/agent/packaging/docker#docker-container-network-interfaces-monitoring
-    environment:
-      TZ: ${TZ}
-    hostname: monitoring.${ROOT_URL} # set to fqdn of host
-    labels:
-      com.centurylinklabs.watchtower.enable: true
-      traefik.enable: true
-      traefik.http.routers.netdata.rule: Host(`monitoring.${ROOT_URL}`, `netdata.${ROOT_URL}`)
-      traefik.http.middlewares.netdata.headers.browserXSSFilter: true
-      traefik.http.middlewares.netdata.headers.contentTypeNosniff: true
-      traefik.http.middlewares.netdata.headers.forceSTSHeader: true
-      traefik.http.middlewares.netdata.headers.frameDeny: true
-      traefik.http.middlewares.netdata.headers.sslredirect: true
-      traefik.http.middlewares.netdata.headers.stsIncludeSubdomains: true
-      traefik.http.middlewares.netdata.headers.stsPreload: true
-      traefik.http.middlewares.netdata.headers.stsSeconds: 315360000
-      traefik.http.routers.netdata.middlewares: traefik-auth,netdata
-    pid: host # required for docker network interfaces monitoring https://learn.netdata.cloud/docs/agent/packaging/docker#docker-container-network-interfaces-monitoring
-    profiles:
-      - monitoring
-    restart: unless-stopped
-    # required to permit SYS_PTRACE https://github.com/moby/moby/issues/7276
-    security_opt:
-      - apparmor:unconfined
-    volumes:
-      - netdata_cache:/var/cache/netdata
-      - netdata_config:/etc/netdata
-      - netdata_lib:/var/lib/netdata
-      # mounted directories -> read-only
-      - /etc/passwd:/host/etc/passwd:ro
-      - /etc/group:/host/etc/group:ro
-      - /etc/os-release:/host/etc/os-release:ro
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-
   portainer:
     image: portainer/portainer-ce:latest
     environment:
@@ -67,19 +28,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./portainer:/data
-
-  statping:
-    image: adamboutcher/statping-ng:latest
-    environment:
-      DB_CONN: sqlite
-    labels:
-      com.centurylinklabs.watchtower.enable: true
-      traefik.enable: true
-    profiles:
-      - statping
-    restart: always
-    volumes:
-      - statping_data:/app
 
   traefik:
     image: traefik:v2.8
@@ -112,6 +60,7 @@ services:
     ports:
       # - 53:53 # deactivated, as dns is conflicting with bind service
       # - 69:69/udp # deactivated, as tftp seems not to work on bridge (behind traefik) https://github.com/linuxserver/docker-netbootxyz/issues/11
+      # - 8080:8080/udp # UDP Testing
       - 80:80
       - 443:443
       - 8883:8883 # MQTT over TLS
@@ -180,10 +129,6 @@ services:
 
 
 volumes:
-  netdata_cache:
-  netdata_config:
-  netdata_lib:
   portainer_data:
-  statping_data:
   tls_cert:
     external: true  

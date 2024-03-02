@@ -16,6 +16,8 @@ entryPoints:
     address: ":8883/tcp"
   tftp:
     address: ":69/udp"
+  udp:
+    address: ":8080/udp"
   web:
     address: ":80"
     http:
@@ -27,8 +29,6 @@ entryPoints:
     address: ":443"
     http:
       tls: {}
-  wss:
-    address: ":4433"
     
 # uncomment for DEBUG message output
 # log:

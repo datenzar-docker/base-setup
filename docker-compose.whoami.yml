@@ -1,0 +1,40 @@
+services:
+  # This example demonstrates a service which is exposed on a subdomain and a path
+  whoami:
+    image: "traefik/whoami"
+    labels:
+      traefik.enable: true
+
+      # Override traefik default settings (e.g. in case if it detects wrong port) 
+      traefik.http.routers.whoami.rule: Host(`whoami.${ROOT_URL}`) 
+      traefik.http.routers.whoami.service: whoami 
+      traefik.http.services.whoami.loadbalancer.server.port: 80 
+ 
+      # Expose service on root hostname with path prefix 
+      traefik.http.routers.whoami_path.rule: Host(`${ROOT_URL}`) && PathPrefix(`/whoami`) 
+      traefik.http.routers.whoami_path.entrypoints: websecure
+      traefik.http.routers.whoami_path.service: whoami 
+
+  # This example demonstrates a service running via host networking
+  whoami_host:
+    image: "traefik/whoami"
+    command:
+       - --port=${WHOAMI_HOST_PORT:-2001}
+       - --name=iamfoo_on_host
+    labels:
+      traefik.enable: true
+      traefik.http.routers.whoami_host.rule: Host(`whoami-host.${ROOT_URL}`) 
+      traefik.http.services.whoami_host.loadbalancer.server.port: ${WHOAMI_HOST_PORT:-2001}
+    network_mode: host
+
+  # This sample demonstrates a service running udp (e.g. for tftp)
+  # Note that you cannot use domain names in the udp entrypoints
+  # You will need to uncomment the port 8080 for traefik service
+  # TODO: check how it can be tested
+  whoami_udp:
+    image: "traefik/whoamiudp"
+    labels:
+      traefik.enable: true
+      traefik.udp.routers.whoami_udp.entrypoints: udp
+      traefik.udp.routers.whoami_udp.service: whoami_udp
+      traefik.udp.services.whoami_udp.loadbalancer.server.port: 8080

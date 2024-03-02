@@ -60,6 +60,10 @@ cp credentials.env.sample credentials.env
 cp .env.sample .env
 ```
 
+## Testing
+
+You can test how services are exposed using the `whomai` test service. Just run `docker-compose -f docker-compose.whoami.yml up -d` and open `https://whoami.${ROOT_URL}` in your browser.
+
 ## Troubleshooting
 
 ### Log ACME DNS challenge
