@@ -28,6 +28,8 @@ services:
       traefik.http.middlewares.netdata.headers.stsSeconds: 315360000
       traefik.http.routers.netdata.middlewares: traefik-auth,netdata
     pid: host # required for docker network interfaces monitoring https://learn.netdata.cloud/docs/agent/packaging/docker#docker-container-network-interfaces-monitoring
+    profiles:
+      - monitoring
     restart: unless-stopped
     # required to permit SYS_PTRACE https://github.com/moby/moby/issues/7276
     security_opt:
@@ -73,6 +75,8 @@ services:
     labels:
       com.centurylinklabs.watchtower.enable: true
       traefik.enable: true
+    profiles:
+      - statping
     restart: always
     volumes:
       - statping_data:/app
@@ -134,7 +138,7 @@ services:
     restart: unless-stopped
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "~/.docker/config.json:/config.json" # optional, for authentication if you have a Docker Hub account
+      - "${HOME}/.docker/config.json:/config.json" # optional, for authentication if you have a Docker Hub account
 
   whoami:
     image: "traefik/whoami"
